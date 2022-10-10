@@ -1,68 +1,10 @@
-# Connecting to the VPS
+# Подключаемся к VPS
 
-To connect your VPS server, you can use your server IP, you can create a root password and enter the server with your IP address and password credentials. But the more secure way is using an SSH key.
+Покделючаемся к нашему серверу чрез PuTTY с помощю IP и пароля к нему.
 
-## Creating SSH Key
+## 1 Первые настройки
 
-### For MAC OS / Linux / Windows 10 (with openssh)
-
-1. Launch the Terminal app.
-2. ```ssh-keygen -t rsa```
-3. Press ```ENTER``` to store the key in the default folder /Users/lamadev/.ssh/id_rsa).
-
-4. Type a passphrase (characters will not appear in the terminal).
-
-5. Confirm your passphrase to finish SSH Keygen. You should get an output that looks something like this:
-
-``` Your identification has been saved in /Users/lamadev/.ssh/id_rsa.
-Your public key has been saved in /Users/lamadev/.ssh/id_rsa.pub.
-The key fingerprint is:
-ae:89:72:0b:85:da:5a:f4:7c:1f:c2:43:fd:c6:44:30 lamadev@mac.local
-The key's randomart image is:
-+--[ RSA 2048]----+
-|                 |
-|         .       |
-|        E .      |
-|   .   . o       |
-|  o . . S .      |
-| + + o . +       |
-|. + o = o +      |
-| o...o * o       |
-|.  oo.o .        |
-+-----------------+ 
-```
-6. Copy your public SSH Key to your clipboard using the following code:
-```pbcopy < ~/.ssh/id_rsa.pub```
-
-### For Windows
-1. Download PuTTY and PuTTYgen.
-2. Open up PuTTYgen and click the ```Generate```.
-3. Copy your key.
-4. Enter a key passphrase and confirm.
-5. Save the private key.
-
-
-## Connection
-
-After copying the SSH Key go the to hosting service provider dashboard and paste your key and save. After,
-
-### For MAC OS / Linux
-
-```bash
-ssh root@<server ip address> 
-```
-
-### For Windows
-
-1. Open the PuTTY app.
-2. Enter your IP address.
-3. Open the following section:
-Connection - SSH - Auth
-4. Browse the folders and choose your private key.
-
-## First Configuration
-
-### Deleting apache server
+### 1.1 Удаляем apach сервер
 
 ```
 systemctl stop apache2
@@ -76,62 +18,88 @@ systemctl disable apache2
 apt remove apache2
 ```
 
-to delete related dependencies:
 ```
 apt autoremove
 ```
 
-### Cleaning and updating server
+### 1.2 Чистим и обновляем сервер
+
 ```
 apt clean all && sudo apt update && sudo apt dist-upgrade
 ```
 
-```
-rm -rf /var/www/html
-```
-
-### Installing Nginx
+### 1.3 Устанавливаем Nginx
 
 ```
 apt install nginx
 ```
 
-### Installing and configure Firewall
-
+Удаляем стартовую стандартную страницу
 ```
-apt install ufw
-```
-
-```
-ufw enable
+rm -rf /var/www/html
 ```
 
+### 1.4 Что бы убедится что у нас все работает создадим папку и свой первый Html 
+
+Переходим в папку "www"
 ```
-ufw allow "Nginx Full"
+сd /var/www
 ```
 
-## First Page
+Создаем новую папку "webapp"
+```
+mkdir webapp
+```
 
-#### Delete the default server configuration
+Создаем index.html
+```
+nano webapp/index.html
+```
+В появившемся окне пишем любой текст, например: "Привет это первая страница на моем VPS"
+Сохраняем Ctrl+S
+Выходим с редактора Ctrl+X
 
+#### 1.4.1 Чтобы увидеть нашу страницу нужно сбросить стандартные настройки сервера и установить свои
+
+Настройки можно увидеть с помощью
+```
+ nano /etc/nginx/sites-available/default
+```
+Есть 2 папки по настройкам сервера "sites-available" и "sites-enabled", доступные и включены соответственно.
+Стандартные настройки нам не нужны поетому их сносим
 ```
  rm /etc/nginx/sites-available/default
 ```
-
+И также удаляем эти настройки с папки "Включены"
 ```
  rm /etc/nginx/sites-enabled/default
 ```
 
-#### First configuration
+Проверим что мы сделали все верно
+Перейдем в папку..
 ```
- nano /etc/nginx/sites-available/netflix
+ cd /etc/nginx/sites-enabled
 ```
+И попросим список вайлов, дерикторий
+```
+ ls
+```
+Вывод должен быть пустым
+
+
+#### Первые настройки
+Создаем свой файл с настройками
+```
+ nano /etc/nginx/sites-available/webapp
+```
+
+Копируем сами настройки (Незабываем заменить имя папки "webapp", в соотвецтвии с 1.4)
 ```
 server {
   listen 80;
 
   location / {
-        root /var/www/netflix;
+        root /var/www/webapp;
         index  index.html index.htm;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -141,7 +109,6 @@ server {
         try_files $uri $uri/ /index.html;
   }
 }
-
 ```
 
 ```
