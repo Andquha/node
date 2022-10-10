@@ -6,9 +6,8 @@ function App() {
 
   const [data,setData] = useState(null);
 
-  useEffect(() => {
-    console.log(fetch('http://api.test-andrew.space/api'))
-    fetch('http://api.test-andrew.space/api')
+  useEffect(async () => {
+    await fetch('http://api.test-andrew.space/api', {mode:'cors'})
     .then(response => response.json())
     .then(response => setData(response.message))
   },[])
