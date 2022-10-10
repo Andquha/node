@@ -366,49 +366,20 @@ cp -r build/* /var/www/webapp/client
 ```
 
 Перейдем по нашему IP и должны видеть что все работает фронт и бекенд
-### Adding Domain
-1 - Make sure that you created your A records on your domain provider website.
+### 2.6 Работаем с доменом
+Заходим в наш вайл с настройками
+```
+nano /etc/nginx/sites-available/webapp
+```
 
-2 - Change your pathname from Router
-
-3 - Change your env files and add the new API address 
-
-4 - Add the following server config
+И переписываем (server_name "Ваш домен")(server_name "api.Ваш домен" для бекенда в моем случае)
 ```
 server {
  listen 80;
- server_name safakkocaoglu.com www.safakkocaoglu.com;
+ server_name test-andrew.space
 
-location / {
- root /var/www/netflix/client;
- index  index.html index.htm;
- proxy_http_version 1.1;
- proxy_set_header Upgrade $http_upgrade;
- proxy_set_header Connection 'upgrade';
- proxy_set_header Host $host;
- proxy_cache_bypass $http_upgrade;
- try_files $uri $uri/ /index.html;
-}
-}
-
-server {
-  listen 80;
-  server_name api.safakkocaoglu.com;
   location / {
-    proxy_pass http://45.90.108.107:8800;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    }
-}
-
-server {
-  listen 80;
-  server_name admin.safakkocaoglu.com;
-  location / {
-    root /var/www/netflix/admin;
+    root /var/www/netflix/client;
     index  index.html index.htm;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -418,22 +389,28 @@ server {
     try_files $uri $uri/ /index.html;
   }
 }
+
+server {
+  listen 80;
+  server_name api.test-andrew.space;
+  location / {
+    proxy_pass http://31.131.24.118:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    }
+}
 ```
 
 ## SSL Certification
 ```
 apt install certbot python3-certbot-nginx
 ```
-
-Make sure that Nginx Full rule is available
-```
-ufw status
-```
-
 ```
 certbot --nginx -d example.com -d www.example.com
 ```
-
 Let’s Encrypt’s certificates are only valid for ninety days. To set a timer to validate automatically:
 ```
 systemctl status certbot.timer

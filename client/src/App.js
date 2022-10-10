@@ -10,8 +10,7 @@ function App() {
   useEffect(async () => {
     await axios.get(`http://api.test-andrew.space/api`,{mode:'cors'})
     .then((response) => {
-      response.json();
-      setData(response.msg);
+      setData(response.data.msg);
     });
   },[])
   
