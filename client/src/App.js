@@ -7,8 +7,8 @@ function App() {
   const [data,setData] = useState(null);
 
   useEffect(() => {
-    console.log(fetch('/api'))
-    fetch('/api')
+    console.log(fetch('http://api.test-andrew.space/api'))
+    fetch('http://api.test-andrew.space/api')
     .then(response => response.json())
     .then(response => setData(response.message))
   },[])
