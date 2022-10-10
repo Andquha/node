@@ -8,7 +8,4 @@ app.listen(3001, () => {
 app.get('/api', (req,res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.send({ "msg": "This has CORS enabled 🎈" });
-  res.json({
-    message: "Hello from backend"
-  })
 })

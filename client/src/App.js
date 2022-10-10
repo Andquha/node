@@ -1,16 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useState } from 'react';
+import axios from "axios";
 
 function App() {
 
   const [data,setData] = useState(null);
 
   useEffect(async () => {
-    await fetch('http://api.test-andrew.space/api', {mode:'cors'})
-    .then(response => response.json())
-    .then(response => setData(response.message))
+    await axios.get(`http://api.test-andrew.space/api`,{mode:'cors'})
+    .then((response) => {
+      response.json();
+      setData(response.msg);
+    });
   },[])
+  
 
   return (
     <div className="App">
