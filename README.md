@@ -129,6 +129,7 @@ nano /etc/nginx/sites-available/webapp
 ```
 server {
   listen 80;
+  listen [::]:80;
 
   location / {
         root /var/www/webapp;
@@ -179,7 +180,9 @@ systemctl status
 
 Теперь переходим по нашему IP и должны увидеть нашу html с текстом
 
-#### Если возникла ошибка, мне помогло 
+#### Проблеммы с nginx
+У меня на серевере был установлен webuzo что мешало роботе nginx хоть я и удалил apache
+Сначало просто убивал процессы на 80 и 433 портах, что решало проблему и nginx работал
 ```
 sudo fuser -k 80/tcp
 ```
@@ -189,27 +192,11 @@ sudo fuser -k 443/tcp
 ```
 sudo service nginx restart
 ```
-##### У меня эта ошибка возникала каждый раз после перезагрузки сервера помогло
-```
-sudo apt purge libnginx-mod-http-perl
-```
-```
-apt autoremove
-```
-```
-sudo systemctl restart nginx
-```
-```
-sudo systemctl restart nginx
-```
-```
-systemctl enable nginx
-```
+Но после перезагрузки серевера проблема возвращалась, и мне єто не нравилось.
 
-Меяем строку After=network.target на After=network-online.target remote-fs.target nss-lookup.target
-```
-nano /etc/systemd/system/multi-user.target.wants/nginx.service
-```
+
+Потом я подумал что проблемы в конфиге nginx и страдал с ним. По итогу 2 дней непонятных решений и мозгового штурма я вошел в панель webuzo и увидел что там включен apache
+Ну виключл его к чертям и все заработало
 ## 2 Сервер готов к роботе загружаем свое приложение
 ### 2.1 Устанавливаем git
 ```
@@ -395,11 +382,11 @@ nano /etc/nginx/sites-available/webapp
 И переписываем (server_name "Ваш домен")(server_name "api.Ваш домен" для бекенда в моем случае)
 ```
 server {
- listen 80;
- server_name test-andrew.space
-
+  listen 80;
+  listen [::]:80;
+  server_name test-andrew.space;
   location / {
-    root /var/www/netflix/client;
+    root /var/www/webapp/client;
     index  index.html index.htm;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -413,14 +400,14 @@ server {
 server {
   listen 80;
   server_name api.test-andrew.space;
-  location / {
+  location /api {
     proxy_pass http://31.131.24.118:3001;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
     proxy_set_header Host $host;
     proxy_cache_bypass $http_upgrade;
-    }
+  }
 }
 ```
 
