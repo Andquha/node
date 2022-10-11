@@ -177,6 +177,8 @@ systemctl status
 ```
 Выйти со списка Ctrl+C
 
+Теперь переходим по нашему IP и должны увидеть нашу html с текстом
+
 #### Если возникла ошибка, мне помогло 
 ```
 sudo fuser -k 80/tcp
@@ -187,9 +189,27 @@ sudo fuser -k 443/tcp
 ```
 sudo service nginx restart
 ```
+##### У меня эта ошибка возникала каждый раз после перезагрузки сервера помогло
+```
+sudo apt purge libnginx-mod-http-perl
+```
+```
+apt autoremove
+```
+```
+sudo systemctl restart nginx
+```
+```
+sudo systemctl restart nginx
+```
+```
+systemctl enable nginx
+```
 
-Теперь переходим по нашему IP и должны увидеть нашу html с текстом
-
+Меяем строку After=network.target на After=network-online.target remote-fs.target nss-lookup.target
+```
+nano /etc/systemd/system/multi-user.target.wants/nginx.service
+```
 ## 2 Сервер готов к роботе загружаем свое приложение
 ### 2.1 Устанавливаем git
 ```
@@ -404,14 +424,16 @@ server {
 }
 ```
 
-## SSL Certification
+## 3 SSL Сертификат
+Устанавливаем
 ```
 apt install certbot python3-certbot-nginx
 ```
+Вместо example.com вставляем наш домен (если используем субдомены прописываем их через "-d")
 ```
 certbot --nginx -d example.com -d www.example.com
 ```
-Let’s Encrypt’s certificates are only valid for ninety days. To set a timer to validate automatically:
+И пропишем команду для автоматического обновления сертификатов
 ```
 systemctl status certbot.timer
 ```
